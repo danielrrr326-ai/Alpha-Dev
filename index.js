@@ -1,23 +1,26 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const cors = require('cors');
+const conectarDB = require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para entender JSON
+// Conectar a la base de datos
+conectarDB();
+
+// Middlewares
+app.use(cors());
 app.use(express.json());
 
-// Conexión a MongoDB Atlas usando tu variable del .env
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ Conexión exitosa a MongoDB Atlas'))
-    .catch((error) => console.error('❌ Error al conectar a MongoDB:', error));
+// Rutas
+const usuariosRoutes = require('./routes/usuarios.routes');
+app.use('/usuarios', usuariosRoutes);
 
-// Tu ruta de prueba
-app.get('/api', (req, res) => {
-    res.json({ mensaje: "Servidor levantado y conectado a la base de datos." });
+app.get('/', (req, res) => {
+  res.send('API Alpha-Dev funcionando 🚀');
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
