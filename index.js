@@ -1,16 +1,23 @@
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json()); // para poder recibir JSON en el body
-app.use(require('cors')()); // si vas a conectarlo con Angular, necesitas CORS
+// Middleware para entender JSON
+app.use(express.json());
 
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.send('Hola mundo');
+// Conexión a MongoDB Atlas usando tu variable del .env
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('✅ Conexión exitosa a MongoDB Atlas'))
+    .catch((error) => console.error('❌ Error al conectar a MongoDB:', error));
+
+// Tu ruta de prueba
+app.get('/api', (req, res) => {
+    res.json({ mensaje: "Servidor levantado y conectado a la base de datos." });
 });
 
-// Levantar el servidor en el puerto 3000
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
