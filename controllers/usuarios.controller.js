@@ -66,10 +66,19 @@ const obtenerUsuarioPorId = async (req, res) => {
   }
 };
 
-// Actualizar usuario (ej: cambiar estado de pago, datos, etc.)
+// Actualizar usuario (ej: cambiar estado de pago, datos, o resetear contraseña)
 const actualizarUsuario = async (req, res) => {
   try {
-    const usuario = await Usuario.findByIdAndUpdate(req.params.id, req.body, {
+    const datosActualizados = { ...req.body };
+
+    // Si viene una contraseña nueva, encriptarla antes de guardar
+    // (evita que se guarde en texto plano y rompa el login con bcrypt.compare)
+    if (datosActualizados.password) {
+      const salt = await bcrypt.genSalt(10);
+      datosActualizados.password = await bcrypt.hash(datosActualizados.password, salt);
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate(req.params.id, datosActualizados, {
       new: true,
       runValidators: true
     }).select('-password');

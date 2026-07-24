@@ -20,14 +20,14 @@ const login = async (req, res) => {
 
     // 3. Generar el JWT incluyendo ID, Rol y Nombre
     const token = jwt.sign(
-      {
-        uid: usuario._id,
-        rol: usuario.rol,
-        nombre: `${usuario.nombres} ${usuario.apellidos}`
-      },
-      'TU_FIRMA_SECRETA_SUPER_SEGURA',
-      { expiresIn: '4h' }
-    );
+  {
+    uid: usuario._id,
+    rol: usuario.rol,
+    nombre: `${usuario.nombres} ${usuario.apellidos}`
+  },
+  process.env.JWT_SECRET,       
+  { expiresIn: '4h' }
+);
 
     res.json({
       ok: true,

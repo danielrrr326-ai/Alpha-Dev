@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const c = require('../controllers/clases.controller');
-const { login } = require('../controllers/auth.controller');
 const { validarJWT, esAdminOProfesor } = require('../middlewares/validar-jwt');
-
-router.post('/login', login);
 
 router.post('/', c.crearClase);                                  // Admin crea clase
 router.get('/', c.obtenerClases);                                 // Listar (?rol=&programa=&profesor=&tipo=)
