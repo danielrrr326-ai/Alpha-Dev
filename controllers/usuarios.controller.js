@@ -10,7 +10,6 @@ const crearUsuario = async (req, res) => {
       email, password, rol, programaInscrito, estadoPago, certificados
     } = req.body;
 
-    // Encriptar contraseña antes de guardar
     const salt = await bcrypt.genSalt(10);
     const passwordEncriptada = await bcrypt.hash(password, salt);
 
@@ -30,7 +29,6 @@ const crearUsuario = async (req, res) => {
 
     const usuarioGuardado = await nuevoUsuario.save();
 
-    // Nunca devolver la contraseña, ni encriptada
     const { password: _, ...usuarioSinPassword } = usuarioGuardado.toObject();
     res.status(201).json(usuarioSinPassword);
 
@@ -42,11 +40,19 @@ const crearUsuario = async (req, res) => {
   }
 };
 
-// Listar todos los usuarios (con filtro opcional por rol)
+// Listar usuarios (filtros opcionales: rol, oculto)
 const obtenerUsuarios = async (req, res) => {
   try {
     const filtro = {};
-    if (req.query.rol) filtro.rol = req.query.rol; // ej: /usuarios?rol=profesor
+    if (req.query.rol) filtro.rol = req.query.rol;
+
+    // Trata "sin el campo oculto" igual que "oculto: false"
+    // (necesario para usuarios creados antes de que existiera este campo)
+    if (req.query.oculto === 'true') {
+      filtro.oculto = true;
+    } else if (req.query.oculto === 'false') {
+      filtro.oculto = { $ne: true };
+    }
 
     const usuarios = await Usuario.find(filtro).select('-password');
     res.json(usuarios);
@@ -66,13 +72,11 @@ const obtenerUsuarioPorId = async (req, res) => {
   }
 };
 
-// Actualizar usuario (ej: cambiar estado de pago, datos, o resetear contraseña)
+// Actualizar usuario (datos, estado de pago, ocultar/restaurar, o resetear contraseña)
 const actualizarUsuario = async (req, res) => {
   try {
     const datosActualizados = { ...req.body };
 
-    // Si viene una contraseña nueva, encriptarla antes de guardar
-    // (evita que se guarde en texto plano y rompa el login con bcrypt.compare)
     if (datosActualizados.password) {
       const salt = await bcrypt.genSalt(10);
       datosActualizados.password = await bcrypt.hash(datosActualizados.password, salt);

@@ -19,6 +19,7 @@ const usuarioSchema = new mongoose.Schema({
   },
 
   huellaId: { type: String, default: null }, // se activa más adelante
+  oculto: { type: Boolean, default: false }, // true = estudiante graduado/inactivo
 
   // --- Solo aplica si rol = 'estudiante' ---
   programaInscrito: {
